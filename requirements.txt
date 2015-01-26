@@ -1,0 +1,2 @@
+# dependencies of the crawler
+beautifulsoup4
