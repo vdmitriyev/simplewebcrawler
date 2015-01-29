@@ -85,7 +85,7 @@ class BSCrawler():
         """
             (obj, str) -> None
 
-            Processing given html to extract news for 'emissubsahara' project.
+            Processing given html to extract information about publication rates.
         """
 
         soup = BeautifulSoup(doc)
