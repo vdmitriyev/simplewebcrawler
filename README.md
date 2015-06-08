@@ -9,7 +9,7 @@ The example method inside uses [BeautifulSoap](http://www.crummy.com/software/Be
     - parses web page, which describes publication activities of the university staf
     - parses web page, which describes weather data
 * [simplewebcrawler_v2](simplewebcrawler/simplewebcrawler_v2.py)
-    - interates one domain, save as html and forms and graph of the it
+    - iterates one domain, save as html and forms and graph of the it
 
 
 ### Dependencies
