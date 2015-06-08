@@ -2,7 +2,14 @@
 ### About
 
 Simple crawler that shown how to implement crawling method for each particular web page.
-The example method inside uses [BeautifulSoap](http://www.crummy.com/software/BeautifulSoup/) and [urllib2](http://docs.python.org/2/library/urllib2.html) to parse webb page, which describes publication activities of the university staff.
+The example method inside uses [BeautifulSoap](http://www.crummy.com/software/BeautifulSoup/) and [urllib2](http://docs.python.org/2/library/urllib2.html)
+
+### Parsing Example
+* [simplewebcrawler](simplewebcrawler/simplewebcrawler.py)
+    - parses web page, which describes publication activities of the university staf
+    - parses web page, which describes weather data
+* [simplewebcrawler_v2](simplewebcrawler/simplewebcrawler_v2.py)
+    - interates one domain, save as html and forms and graph of the it
 
 
 ### Dependencies
