@@ -12,14 +12,30 @@ __status__     = "Test"
 __date__    = "23.01.2015"
 __description__ = "Simple web crawler that uses beautifulsoup package."
 
-import urllib2
-from time import sleep
-from crawler_helper import DirectoryHelper
-from bs4 import BeautifulSoup
-import collections
-from pprint import pprint
+import os
 import uuid
 import json
+import urllib2
+import collections
+from bs4 import BeautifulSoup
+from time import sleep
+from pprint import pprint
+
+
+
+# importing custom libraries
+try:
+    from helper_directory import DirectoryHelper
+except:
+    import urllib
+    target_path = 'https://raw.githubusercontent.com/vdmitriyev/sourcecodesnippets/master/python/helper_directory/helper_directory.py'
+    target_name = 'helper_directory.py'
+    urllib.urlretrieve (target_path, target_name)
+    from helper_directory import DirectoryHelper
+finally:
+    import helper_directory
+    if helper_directory.__version__ != '1.0.0':
+        print 'Wrong version of the library {0}. Check the version'.format(helper_directory.__file__)
 
 SLEEP_TIME_IN_SECONDS = 2
 class BSCrawler():
@@ -27,9 +43,23 @@ class BSCrawler():
     UA = 'Mozilla/5.0 (X11; U; FreeBSD i386; en-US; rv:1.9.2.9) Gecko/20100913 Firefox/3.6.9'
 
     def __init__(self):
+        """
+            initial method:
+                - initiates helper class;
+                - checks the temp directory existance
+        """
+
         self.helper = DirectoryHelper()
         #self.helper.prepare_working_directory()
-        self.temp_dir = self.helper.temp_dir
+        try:
+            self.work_dir = self.helper.work_dir
+        except:
+            self.work_dir = '__temp__'
+
+        if not os.path.exists(self.work_dir):
+            os.makedirs(self.work_dir)
+
+        print '[i] files will be saved into folder "{0}"'.format(self.work_dir)
 
     def crawl(self):
         """
@@ -82,7 +112,7 @@ class BSCrawler():
             Saving images to the folders
         """
 
-        img_dir = self.temp_dir + folder + '\\'
+        img_dir = self.work_dir + folder + '\\'
         self.helper.create_directory_ondemand(img_dir)
         for img in img_list:
             img_full_url = img['src']
@@ -184,9 +214,9 @@ class BSCrawler():
                 output = output  + value + ' ' + str(final_dataset[value]) + '\n'
 
         # text data for debugging, uncomment if needed
-        #self.helper.save_file(self.temp_dir + gen_new_name + '.html', prettified_html)
-        #self.helper.save_file(self.temp_dir + gen_new_name + '.txt', text_from_html)
-        self.helper.save_file(self.temp_dir + gen_new_name + '.output', output)
+        #self.helper.save_file(self.work_dir + gen_new_name + '.html', prettified_html)
+        #self.helper.save_file(self.work_dir + gen_new_name + '.txt', text_from_html)
+        self.helper.save_file(self.work_dir + os.path.sep + gen_new_name + '.output', output)
 
 
     def process_tutiempo_weather(self, tag):
@@ -284,7 +314,7 @@ class BSCrawler():
             csv_output += tmp[:-1*len(delimeter)] + '\n'
 
         # saving csv output to in the file
-        csv_full_path = self.temp_dir + tag + '-' + _new_file_name + '.csv'
+        csv_full_path = self.work_dir + os.path.sep + tag + '-' + _new_file_name + '.csv'
         self.helper.save_file(csv_full_path, csv_output)
         print '[i] data in csv saved to the {}'.format(csv_full_path)
 

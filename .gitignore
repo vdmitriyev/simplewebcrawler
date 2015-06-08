@@ -1,2 +1,4 @@
 simplewebcrawler/__temp__/*
+simplewebcrawler/generated/*
 simplewebcrawler/*.pyc
+simplewebcrawler/helper_directory.py
