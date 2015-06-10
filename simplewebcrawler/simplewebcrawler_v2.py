@@ -22,7 +22,6 @@ from bs4 import BeautifulSoup
 from time import sleep
 from pprint import pprint
 
-
 # importing custom libraries
 try:
     from helper_directory import DirectoryHelper
@@ -39,6 +38,9 @@ finally:
 
 # time of the delay
 SLEEP_TIME_IN_SECONDS = 2
+
+# other content types will be ingnored
+ACCEPTABLE_CONTENT_TYPE = 'text/html'
 
 class SetQueue(Queue.Queue):
 
@@ -81,6 +83,8 @@ class BSCrawler():
         if start_url is None:
             print '[e] specify start URL'
 
+        start_url = self.adjust_url(start_url)
+
         self.urls = SetQueue()
         self.urls.put(start_url)
         self.domain = domain
@@ -99,12 +103,28 @@ class BSCrawler():
         try:
             req = urllib2.Request(url=url, headers={'User-Agent': self.UA})
             hdl = urllib2.urlopen(req)
-            html = hdl.read()
+
+            content_type = hdl.info().dict['content-type']
+
+            if  ACCEPTABLE_CONTENT_TYPE in content_type:
+                html = hdl.read()
+            else:
+                print '[i] ignored content-type was {0}'.format(content_type)
+
         except Exception,ex:
             print '[e] exception: {}'.format(str(ex))
 
         return html
 
+    def adjust_url(self, url):
+        """
+            Removing the last slash if presented
+        """
+
+        if url[-1:] == '/':
+            url = url[:-1]
+
+        return url
 
     def crawl(self):
         """
@@ -134,6 +154,8 @@ class BSCrawler():
                 if url_potential != '#' and \
                    url_potential is not None:
 
+                   url_potential = self.adjust_url(url_potential)
+
                    self.update_website_graph(from_link=url, to_link=url_potential)
 
                    if  url_potential not in visited and \
@@ -150,7 +172,7 @@ class BSCrawler():
                 return self.work_dir + os.path.sep + html_file_name + '.html'
 
 
-            # saving html into file
+            # saving html to a file
             full_file_name = proper_filename(url)
             self.helper.save_file(full_file_name, html)
             print '[i] html was saved to the {}'.format(full_file_name)
@@ -159,7 +181,7 @@ class BSCrawler():
         """
             (obj, str) -> None
 
-            updating graph of the web site
+            Updating graph of a web site
         """
 
         if not from_link in self.website_graph:
