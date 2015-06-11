@@ -83,7 +83,7 @@ class BSCrawler():
         if start_url is None:
             print '[e] specify start URL'
 
-        start_url = self.adjust_url(start_url)
+        start_url = BSCrawler.adjust_url(start_url)
 
         self.urls = SetQueue()
         self.urls.put(start_url)
@@ -111,12 +111,13 @@ class BSCrawler():
             else:
                 print '[i] ignored content-type was {0}'.format(content_type)
 
-        except Exception,ex:
-            print '[e] exception: {}'.format(str(ex))
+        except Exception as ex:
+            print '[e] exception: {0}, arguments: {1}'.format(ex.message, ex.args)
 
         return html
 
-    def adjust_url(self, url):
+    @staticmethod
+    def adjust_url(url):
         """
             Removing the last slash if presented
         """
@@ -154,7 +155,7 @@ class BSCrawler():
                 if url_potential != '#' and \
                    url_potential is not None:
 
-                   url_potential = self.adjust_url(url_potential)
+                   url_potential = BSCrawler.adjust_url(url_potential)
 
                    self.update_website_graph(from_link=url, to_link=url_potential)
 

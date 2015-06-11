@@ -69,7 +69,7 @@ class BSCrawler():
         """
 
         for url in self.dispatcher:
-            print '[i] following url is going to be parsed:\n %s '% (url)
+            print '[i] following url is going to be parsed:\n {0}'.format(url)
             self.main_url = url
             doc = self.download_document(url)
             self.dispatcher[url](self, doc)
@@ -83,7 +83,7 @@ class BSCrawler():
         """
 
         for url in self.dispatcher_dynamic:
-            print '[i] following url is going to be parsed in a dynamic way:\n %s '% (url)
+            print '[i] following url is going to be parsed in a dynamic way:\n {0}'.format(url)
             self.dynamic_url = url
             tag = self.dispatcher_dynamic[url][1]
             self.dispatcher_dynamic[url][0](self, tag)
@@ -100,8 +100,8 @@ class BSCrawler():
             req = urllib2.Request(url=url, headers={'User-Agent': self.UA})
             hdl = urllib2.urlopen(req)
             html = hdl.read()
-        except Exception,ex:
-            print '[e] exception: {}'.format(str(ex))
+        except Exception as ex:
+            print '[e] exception: {0}, arguments: {1}'.format(ex.message, ex.args)
 
         return html
 
@@ -125,7 +125,7 @@ class BSCrawler():
                 gen_img_name = img_dir + self.helper.gen_file_name(extention='')
                 self.helper.save_img_file(gen_img_name + img_extention, image)
             else:
-                print '[i] this image is not found: %s' % (img_full_url)
+                print '[i] this image is not found: {0}'.format(img_full_url)
 
 
     def process_biblio_oldb(self, doc):
@@ -254,7 +254,7 @@ class BSCrawler():
                         day = int(row[0])
                         if day >= 1 and day <= 31:
                             daily_weather[day] = [row[2], row[3]]
-                    except Exception, ex:
+                    except:
                         pass
                         #print '[e] exception: {}'.format(str(ex))
 
@@ -274,14 +274,14 @@ class BSCrawler():
                 raise Exception('years should be defined')
             if months is None or len(months) < 1:
                 raise Exception('months should be defined')
-        except Exception, ex:
-            print '[e] exception: {}'.format(str(ex))
+        except Exception as ex:
+            print '[e] exception: {0}, arguments: {1}'.format(ex.message, ex.args)
             return
 
         result_csv = list()
         for year in years:
             for month in months:
-                month_year = '{}-{}'.format(month,year)
+                month_year = '{0}-{1}'.format(month,year)
                 url_to_download = self.dynamic_url % (month_year)
 
                 # priting info about url to download
