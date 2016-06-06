@@ -15,13 +15,12 @@ __description__ = "Simple web crawler that uses beautifulsoup package."
 import os
 import uuid
 import json
+import locale
 import urllib2
 import collections
 from bs4 import BeautifulSoup
 from time import sleep
 from pprint import pprint
-
-
 
 # importing custom libraries
 try:
@@ -125,7 +124,7 @@ class BSCrawler():
                 gen_img_name = img_dir + self.helper.gen_file_name(extention='')
                 self.helper.save_img_file(gen_img_name + img_extention, image)
             else:
-                print '[i] this image is not found: {0}'.format(img_full_url)
+                print ('[i] this image is not found: {0}'.format(img_full_url))
 
 
     def process_biblio_oldb(self, doc):
@@ -143,12 +142,18 @@ class BSCrawler():
         prettified_html = soup.prettify()
         text_from_html = soup.get_text()
 
-        output = ''
         rows = soup.findAll('tr')
         section = ''
         dataset = {}
 
-        years = ['2010:', '2011:', '2012:', '2013:', '2014:']
+        # setting locale
+        try:
+            locale.setlocale(locale.LC_ALL, 'de_DE')
+        except:
+            locale.setlocale(locale.LC_ALL, 'deu_deu')
+
+        #years = ['2010:', '2011:', '2012:', '2013:', '2014:']
+        years = ['2012:', '2013:', '2014:']
 
         for row in rows:
             if row.attrs:
@@ -201,22 +206,36 @@ class BSCrawler():
             years_dict = {}
             for year in years:
                 try:
-                    years_dict[year[:len(year)-1]] = float(dataset[value][year])
-                except:
+                    # years_dict[year[:len(year)-1]] = float(dataset[value][year])
+                    years_dict[year[:len(year)-1]] = locale.atof(dataset[value][year])
+                except Exception as ex:
+                    #print ('[e] exception: {0}'.format(ex))
                     years_dict[year[:len(year)-1]] = float(0.0)
             final_dataset[value] = years_dict
+
+        output_by_year = ''
 
         keyfunc = ''
         for year in years:
             sorted_ = sorted(final_dataset.keys(), key = lambda x: final_dataset[x][year[:len(year)-1]])
-            output = output + '-----------------' + year[:len(year)-1] + '-----------------------' + '\n'
+            output_by_year = output_by_year + '-----------------' + year[:len(year)-1] + '-----------------------' + '\n'
             for value in sorted_:
-                output = output  + value + ' ' + str(final_dataset[value]) + '\n'
+                output_by_year = output_by_year + value + ' ' + str(final_dataset[value]) + '\n'
+
+        DELIMETER = ','
+        output_as_csv = 'NAME' + DELIMETER + DELIMETER.join(years) + '\n'
+
+        for row_key in final_dataset:
+            tmp_row = row_key + DELIMETER
+            for year in years:
+                tmp_row += str(final_dataset[row_key][year[:-1]]) + DELIMETER
+            output_as_csv += tmp_row[:-1] + '\n'
 
         # text data for debugging, uncomment if needed
-        #self.helper.save_file(self.work_dir + gen_new_name + '.html', prettified_html)
-        #self.helper.save_file(self.work_dir + gen_new_name + '.txt', text_from_html)
-        self.helper.save_file(self.work_dir + os.path.sep + gen_new_name + '.output', output)
+        self.helper.save_file(self.work_dir + gen_new_name + '.html', prettified_html)
+        self.helper.save_file(self.work_dir + gen_new_name + '.txt', text_from_html)
+        self.helper.save_file(self.work_dir + os.path.sep + gen_new_name + '.csv', output_as_csv)
+        self.helper.save_file(self.work_dir + os.path.sep + gen_new_name + '.output', output_by_year)
 
 
     def process_tutiempo_weather(self, tag):
@@ -319,8 +338,9 @@ class BSCrawler():
         print '[i] data in csv saved to the {}'.format(csv_full_path)
 
     # dispatchers for extract and parsing one single web page
+    # it actually shows statistics of last three years starting from given
     dispatcher = {
-            'http://diglib.bis.uni-oldenburg.de/hsb/statistik/?page=hsb_institut&jahr=2012&inst=20100': process_biblio_oldb,
+            'http://diglib.bis.uni-oldenburg.de/hsb/statistik/?page=hsb_institut&jahr=2014&inst=20100': process_biblio_oldb,
         }
 
     # dispatchers for extract and parsing multiple web pages
@@ -332,8 +352,8 @@ class BSCrawler():
 def main():
 
     crawler = BSCrawler()
-    #crawler.crawl()
-    crawler.crawl_dynamic()
+    crawler.crawl()
+    #crawler.crawl_dynamic()
 
 if __name__ == '__main__':
     main()
